@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_06_033847) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_06_041555) do
   create_table "cards", force: :cascade do |t|
     t.string "suit"
     t.string "value"
@@ -21,4 +21,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_06_033847) do
     t.index ["rented_at"], name: "index_cards_on_rented_at"
     t.index ["suit", "value"], name: "index_cards_on_suit_and_value", unique: true
   end
+
+  create_table "transactions", force: :cascade do |t|
+    t.integer "transaction_type", default: 0, null: false
+    t.integer "amount_cents", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "card_id", null: false
+    t.index ["card_id"], name: "index_transactions_on_card_id"
+  end
+
+  add_foreign_key "transactions", "cards"
 end

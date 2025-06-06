@@ -1,5 +1,5 @@
 class Transaction < ApplicationRecord
-  enum transaction_type: { initial_balance: 0, rent: 1, card_replacement: 2 }
+  enum :transaction_type, { initial_balance: 0, rent: 1, card_replacement: 2 }
 
   validates :transaction_type, presence: true
   validates :amount_cents, numericality: { greater_than_or_equal_to: 0 }
