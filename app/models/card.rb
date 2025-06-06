@@ -120,12 +120,12 @@ class Card < ApplicationRecord
   end
 
   def elapsed_time
-    return 0 unless rented_at
+    return 0 unless rented?
 
     [Time.current, rented_at + MAX_RENT_TIME].min - rented_at
   end
 
   def overdue?
-    rented? && rented_at.present? && ((Time.current - rented_at) > 15.minutes)
+    rented? && ((Time.current - rented_at) > 15.minutes)
   end
 end

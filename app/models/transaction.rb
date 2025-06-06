@@ -16,6 +16,7 @@ class Transaction < ApplicationRecord
   end
 
   # TODO: Maybe create a function for total amount which would be - rent - replacement costs?
+  #  or it could be just the amounts being + or -
 
 
   def amount_in_dollars
@@ -38,13 +39,13 @@ class Transaction < ApplicationRecord
     Transaction.where('created_at >= ?', Time.current - time_frame_hrs.hours)
   end
 
-  # Do we need a bang here?
   def self.collect_rent!(card, amount)
     transaction = Transaction.new(transaction_type: :rent, amount_cents: amount, card: card)
     transaction.save!
     transaction
   end
 
+  # Should we make it negeative? the amount?
   def self.charge_replacement_fees!(card, amount)
     transaction = Transaction.new(transaction_type: :card_replacement, amount_cents: amount, card: card) # Assuming a fixed cost for lost card
     transaction.save!
