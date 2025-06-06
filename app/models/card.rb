@@ -13,6 +13,8 @@ class Card < ApplicationRecord
   
   enum :status, { available: 0, rented: 1, lost: 2, damaged: 3 }
 
+  has_many :transactions, dependent: :destroy
+
   # Initialize the deck with all cards
   def self.setup_deck
     # Housekeeping to avoid duplicates betweeen the sessions
@@ -38,7 +40,8 @@ class Card < ApplicationRecord
   end
 
   def return!
-    raise 'The card trying to be returned is not rented' unless rented?
+    raise 'The card trying to be returned is not rented (violating the uniqueness constraint on a standard deck of cards).' unless rented?
+    raise 'The card trying to be returned has been lost.' unless lost?
 
     update!(status: 'available')
   end
