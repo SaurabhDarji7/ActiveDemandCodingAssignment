@@ -56,7 +56,7 @@ class Card < ApplicationRecord
   end
 
   def lost?
-    rented? && rented_at.present? && ((Time.current - rented_at) > 15.minutes)
+    status == 'lost' || (rented? && rented_at.present? && ((Time.current - rented_at) > 15.minutes))
   end
 
   def lost!
