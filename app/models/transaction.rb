@@ -38,13 +38,14 @@ class Transaction < ApplicationRecord
     Transaction.where('created_at >= ?', Time.current - time_frame_hrs.hours)
   end
 
-  def self.create_rent_transaction(card, amount)
+  # Do we need a bang here?
+  def self.collect_rent!(card, amount)
     transaction = Transaction.new(transaction_type: :rent, amount_cents: amount, card: card)
     transaction.save!
     transaction
   end
 
-  def self.create_replacement_transaction(card, amount)
+  def self.charge_replacement_fees(card, amount)
     transaction = Transaction.new(transaction_type: :card_replacement, amount_cents: amount, card: card) # Assuming a fixed cost for lost card
     transaction.save!
     transaction
