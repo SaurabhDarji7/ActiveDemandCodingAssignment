@@ -52,12 +52,12 @@ class Card < ApplicationRecord
     end
 
     update!(status: 'available')
-    Transaction.create_rent_transaction(self, total_rent_cost)
+    Transaction.collect_rent!(self, total_rent_cost)
   end
 
   # Overriding the lost? method of the enum to include the overdue condition
   def lost?
-    super || (rented? && rented_at.present? && ((Time.current - rented_at) > 15.minutes))
+    super || overdue?
   end
 
   def lost!
@@ -65,7 +65,7 @@ class Card < ApplicationRecord
     # ban the user from renting this card again
     update!(status: 'lost')
 
-    Transaction.create_replacement_transaction(self, RESTOCK_COST)
+    Transaction.charge_replacement_fees!(self, RESTOCK_COST)
   end
 
   def joker?
@@ -102,5 +102,9 @@ class Card < ApplicationRecord
 
     elapsed_time = [Time.current, rented_at + 15.mins].min - rented_at
     (elapsed_time / 1.minute).ceil * RENT_COST
+  end
+
+  def overdue?
+    rented? && rented_at.present? && ((Time.current - rented_at) > 15.minutes)
   end
 end
