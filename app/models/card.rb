@@ -16,6 +16,7 @@ class Card < ApplicationRecord
   validates :suit, presence: true, unless: :joker?
   validates :value, presence: true
   validates :status, presence: true 
+  validates :rented_at, presence: true, if: :rented? # need to rm all the validations whcich use the rentend_at
   
   enum :status, { available: 0, rented: 1, lost: 2 }
 
@@ -90,6 +91,12 @@ class Card < ApplicationRecord
     raise 'The card trying to be made available is not lost.' unless lost?
     
     update!(status: 'available', rented_at: nil)
+  end
+
+  def self.find_and_mark_lost_cards
+    self.rented.each do |card|
+        card.lost! if card.overdue?
+    end
   end
 
   private
