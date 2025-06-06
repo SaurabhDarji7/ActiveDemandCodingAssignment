@@ -61,6 +61,7 @@ class Card < ApplicationRecord
   end
 
   def lost!
+    return if lost?
     # ban the user from renting this card again
     update!(status: 'lost')
 
