@@ -17,6 +17,26 @@ module Api
       render json: stock, status: :ok
     end
 
-    private
+    def finances
+      balance = Transaction.total_balance
+      pending_rent = Transaction.pending_rent
+      pending_replacement = Transaction.pending_replacement
+
+      recent_transactions = Transaction.recent_transactions(time_frame_hrs: 3).map do |transaction|
+        {
+          type: transaction.type,
+          amount: transaction.amount,
+          created_at: transaction.created_at
+        }
+      end
+
+      render json: {
+        balance: balance,
+        pending_rent: pending_rent,
+        pending_replacement: pending_replacement,
+        recent_transactions: recent_transactions
+      }, status: :ok
+      
+    end
   end
 end
