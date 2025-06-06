@@ -4,11 +4,11 @@ class Card < ApplicationRecord
   SUITS = %w[spade heart club diamond].freeze
   VALUES = %w[2 3 4 5 6 7 8 9 10 11 12 13 a].freeze
 
-  RENT_COST = 1.freeze # in cents
-  RESTOCK_COST = 50.freeze # in cents
+  RENT_COST = 1 # in cents
+  RESTOCK_COST = 50 # in cents
 
-  COMPLETE_DECK_SIZE = 53.freeze # 52 standard cards + 1 joker
-  MAX_RENT_TIME = 15.minutes.freeze # Maximum time a card can be rented before it is considered overdue
+  COMPLETE_DECK_SIZE = 53 # 52 standard cards + 1 joker
+  MAX_RENT_TIME = 15.minutes # Maximum time a card can be rented before it is considered overdue
 
   validates :suit, inclusion: { in: SUITS }, unless: :joker?
   validates :value, inclusion: { in: VALUES }, unless: :joker?
@@ -24,7 +24,9 @@ class Card < ApplicationRecord
 
   # Initialize the deck with all cards
   def self.setup_deck
-    # Housekeeping to avoid duplicates betweeen the sessions
+    # Housekeeping to avoid duplicates between sessions:
+    # Card.destroy_all ensures that all existing cards are removed from the database,
+    # allowing the setup of a new deck without any duplication or leftover data.
     Card.destroy_all
 
     add_standard_cards

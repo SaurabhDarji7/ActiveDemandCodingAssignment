@@ -56,6 +56,7 @@ class Transaction < ApplicationRecord
   def load_initial_balance
     self.transaction_type = :initial_balance
     self.amount_cents = INITIAL_BALANCE
+    save!
   end
 
   def exit_application
