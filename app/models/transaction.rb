@@ -45,7 +45,7 @@ class Transaction < ApplicationRecord
     transaction
   end
 
-  def self.charge_replacement_fees(card, amount)
+  def self.charge_replacement_fees!(card, amount)
     transaction = Transaction.new(transaction_type: :card_replacement, amount_cents: amount, card: card) # Assuming a fixed cost for lost card
     transaction.save!
     transaction

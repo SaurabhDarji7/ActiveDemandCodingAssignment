@@ -80,7 +80,7 @@ class Card < ApplicationRecord
     return unless lost.present?
 
     update!(status: 'available', rented_at: nil)
-    Transaction.create_replacement_transaction(self, RESTOCK_COST)
+    Transaction.create_replacement_transaction!(self, RESTOCK_COST)
   end
 
   private
