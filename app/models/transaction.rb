@@ -15,9 +15,25 @@ class Transaction < ApplicationRecord
     load_initial_balance if Transaction.count.zero?
   end
 
+  def self.total_balance
+    Transaction.sum(:amount_cents) / 100.0
+  end
+
+  def self.pending_rent
+    Transaction.rent.sum(:amount_cents) / 100.0
+  end
+
+  def self.pending_replacement
+    Transaction.card_replacement.sum(:amount_cents) / 100.0
+  end
+
+  def self.recent_transactions(time_frame_hrs: 3)
+    Transaction.where('created_at >= ?', Time.current - time_frame_hrs.hours)
+  end
   private
 
-  def self.load_initial_balance
-    create!(transaction_type: :initial_balance, amount_cents: 500)
+  def load_initial_balance
+    self.transaction_type = :initial_balance
+    self.amount_cents = 500
   end
 end
