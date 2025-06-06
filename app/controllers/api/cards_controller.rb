@@ -2,7 +2,7 @@ module Api
   class CardsController < ::ApplicationController
     BLOCKED_IPS = []
 
-    before_action :initialize_deck, only: [:show]
+    before_action :initialize_deck, :initialize_balance, only: [:show]
     before_action :block_request, if: :unsafe_ip_address? # Move this to ApplicationController or a concern if needed
 
     protect_from_forgery with: :null_session # Move this to ApplicationController 
@@ -22,12 +22,18 @@ module Api
   
       card.return!
       render json: card, status: :ok
+    rescue StandardError => e
+      render json: { error: e.message }, status: :unprocessable_entity
     end
 
     private
 
     def initialize_deck
       Card.setup_deck unless Card.complete_deck?
+    end
+
+    def initialize_balance
+      Transaction.new if Transaction.count.zero?
     end
 
     def card_params
