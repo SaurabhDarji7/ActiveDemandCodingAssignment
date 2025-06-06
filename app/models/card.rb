@@ -34,7 +34,7 @@ class Card < ApplicationRecord
   def rent!
     raise 'The card trying to be rentend is not available' unless available?
 
-    update!(status: 'rented')
+    update!(status: 'rented', rented_at: Time.current)
   end
 
   def return!

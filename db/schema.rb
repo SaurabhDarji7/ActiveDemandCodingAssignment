@@ -10,13 +10,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_05_222223) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_06_033847) do
   create_table "cards", force: :cascade do |t|
     t.string "suit"
     t.string "value"
     t.integer "status", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "rented_at"
+    t.index ["rented_at"], name: "index_cards_on_rented_at"
     t.index ["suit", "value"], name: "index_cards_on_suit_and_value", unique: true
   end
 end
