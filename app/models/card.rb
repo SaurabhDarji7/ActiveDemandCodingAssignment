@@ -11,7 +11,7 @@ class Card < ApplicationRecord
   validates :value, presence: true
   validates :status, presence: true 
   
-  enum :status, { available: 0, rented: 1, lost: 2, damaged: 3 }
+  enum :status, { available: 0, rented: 1, lost: 2 }
 
   has_many :transactions, dependent: :destroy
 
