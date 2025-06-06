@@ -78,7 +78,7 @@ class Card < ApplicationRecord
     count == COMPLETE_DECK_SIZE
   end
 
-  def restock_cards
+  def self.restock_cards
     return unless lost.present?
 
     lost.each do |lost_card|
