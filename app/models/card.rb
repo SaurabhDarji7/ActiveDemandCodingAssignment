@@ -7,6 +7,8 @@ class Card < ApplicationRecord
   RENT_COST = 1.freeze # in cents
   RESTOCK_COST = 50.freeze # in cents
 
+  COMPLETE_DECK_SIZE = 53.freeze # 52 standard cards + 1 joker
+
   validates :suit, inclusion: { in: SUITS }, unless: :joker?
   validates :value, inclusion: { in: VALUES }, unless: :joker?
 
@@ -69,7 +71,7 @@ class Card < ApplicationRecord
   end
 
   def self.complete_deck?
-    count == 53
+    count == COMPLETE_DECK_SIZE
   end
 
   def restock_cards
