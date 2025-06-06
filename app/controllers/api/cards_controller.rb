@@ -11,7 +11,7 @@ module Api
     def show
       card = Card.handout_random_card
 
-      render json: @card, status: :ok
+      render json: card, status: :ok
     rescue StandardError => e
       render json: { error: e.message }, status: :unprocessable_entity
     end
