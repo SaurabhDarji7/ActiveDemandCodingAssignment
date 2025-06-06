@@ -55,8 +55,9 @@ class Card < ApplicationRecord
     Transaction.create_rent_transaction(self, total_rent_cost)
   end
 
+  # Overriding the lost? method of the enum to include the overdue condition
   def lost?
-    status == 'lost' || (rented? && rented_at.present? && ((Time.current - rented_at) > 15.minutes))
+    super || (rented? && rented_at.present? && ((Time.current - rented_at) > 15.minutes))
   end
 
   def lost!
