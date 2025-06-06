@@ -2,7 +2,9 @@ class Transaction < ApplicationRecord
   enum :transaction_type, { initial_balance: 0, rent: 1, card_replacement: 2 }
 
   validates :transaction_type, presence: true
-  validates :amount_cents, numericality: { greater_than_or_equal_to: 0 }
+  validates :amount_cents, numericality: { greater_than_or_equal_to: 0 } #Can be nefative for expenses?
+
+  after_create :exit_application, unless: -> { total_balance > 0 }
 
   belongs_to :card
 
@@ -12,6 +14,9 @@ class Transaction < ApplicationRecord
     super
     load_initial_balance if Transaction.count.zero?
   end
+
+  # TODO: Maybe create a function for total amount which would be - rent - replacement costs?
+
 
   def amount_in_dollars
     amount_cents / 100.0
@@ -33,10 +38,27 @@ class Transaction < ApplicationRecord
     Transaction.where('created_at >= ?', Time.current - time_frame_hrs.hours)
   end
 
+  def self.create_rent_transaction(card, amount)
+    transaction = Transaction.new(transaction_type: :rent, amount_cents: amount, card: card)
+    transaction.save!
+    transaction
+  end
+
+  def self.create_replacement_transaction(card, amount)
+    transaction = Transaction.new(transaction_type: :card_replacement, amount_cents: amount, card: card) # Assuming a fixed cost for lost card
+    transaction.save!
+    transaction
+  end
+
   private
 
   def load_initial_balance
     self.transaction_type = :initial_balance
     self.amount_cents = INITIAL_BALANCE
+  end
+
+  def exit_application
+    Rails.logger.info "Exiting application due to insufficient balance."
+    exit(0)
   end
 end
