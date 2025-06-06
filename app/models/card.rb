@@ -100,8 +100,7 @@ class Card < ApplicationRecord
   def total_rent_cost
     return 0 unless rented_at
 
-    #TODO: Check how to use this min function
-    elapsed_time = min(Time.current, rented_at + 15.mins) - rented_at
+    elapsed_time = [Time.current, rented_at + 15.mins].min - rented_at
     (elapsed_time / 1.minute).ceil * RENT_COST
   end
 end
