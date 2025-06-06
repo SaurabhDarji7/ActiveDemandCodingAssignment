@@ -6,13 +6,15 @@ class Transaction < ApplicationRecord
 
   belongs_to :card
 
-  def amount_in_dollars
-    amount_cents / 100.0
-  end
+  INITIAL_BALANCE = 500.freeze # in cents
 
   def initialize(attributes = {})
     super
     load_initial_balance if Transaction.count.zero?
+  end
+
+  def amount_in_dollars
+    amount_cents / 100.0
   end
 
   def self.total_balance
@@ -30,10 +32,11 @@ class Transaction < ApplicationRecord
   def self.recent_transactions(time_frame_hrs: 3)
     Transaction.where('created_at >= ?', Time.current - time_frame_hrs.hours)
   end
+
   private
 
   def load_initial_balance
     self.transaction_type = :initial_balance
-    self.amount_cents = 500
+    self.amount_cents = INITIAL_BALANCE
   end
 end
