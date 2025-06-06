@@ -59,17 +59,17 @@ class Card < ApplicationRecord
     Transaction.collect_rent!(self, total_rent_cost)
   end
 
-  # Overriding the lost? method of the enum to include the overdue condition
-  def lost?
-    super || overdue?
-  end
-
   def lost!
     return if lost?
     # ban the user from renting this card again
     update!(status: 'lost')
 
     Transaction.charge_replacement_fees!(self, RESTOCK_COST)
+  end
+
+  # Overriding the lost? method of the enum to include the overdue condition
+  def lost?
+    super || overdue?
   end
 
   def joker?
@@ -85,7 +85,7 @@ class Card < ApplicationRecord
 
     lost.each do |lost_card|
       lost_card.make_it_available!
-      Transaction.create_replacement_transaction!(lost_card, RESTOCK_COST)
+      Transaction.charge_replacement_fees!(lost_card, RESTOCK_COST)
     end
   end
 
@@ -97,7 +97,7 @@ class Card < ApplicationRecord
 
   def self.find_and_mark_lost_cards
     self.rented.each do |card|
-        card.lost! if card.overdue?
+        card.lost! if card.overdue? # would we want this to be depended on the value == 'lost' only
     end
   end
 
