@@ -3,7 +3,10 @@
 class Card < ApplicationRecord
   SUITS = %w[spade heart club diamond].freeze
   VALUES = %w[2 3 4 5 6 7 8 9 10 11 12 13 a].freeze
-  
+
+  RENT_COST = 1.freeze # in cents
+  RESTOCK_COST = 50.freeze # in cents
+
   validates :suit, inclusion: { in: SUITS }, unless: :joker?
   validates :value, inclusion: { in: VALUES }, unless: :joker?
 
@@ -41,9 +44,24 @@ class Card < ApplicationRecord
 
   def return!
     raise 'The card trying to be returned is not rented (violating the uniqueness constraint on a standard deck of cards).' unless rented?
-    raise 'The card trying to be returned has been lost.' unless lost?
+    if lost?
+      lost!
+      raise 'The card trying to be returned has already been declared as \'lost\'.' 
+    end
 
     update!(status: 'available')
+    Transaction.create_rent_transaction(self, total_rent_cost)
+  end
+
+  def lost?
+    rented? && rented_at.present? && ((Time.current - rented_at) > 15.minutes)
+  end
+
+  def lost!
+    # ban the user from renting this card again
+    update!(status: 'lost')
+
+    Transaction.create_replacement_transaction(self, RESTOCK_COST)
   end
 
   def joker?
@@ -52,6 +70,13 @@ class Card < ApplicationRecord
 
   def self.complete_deck?
     count == 53
+  end
+
+  def restock_cards
+    return unless lost.present?
+
+    update!(status: 'available', rented_at: nil)
+    Transaction.create_replacement_transaction(self, RESTOCK_COST)
   end
 
   private
@@ -66,5 +91,13 @@ class Card < ApplicationRecord
 
   def self.add_joker
     create(suit: nil, value: 'joker', status: 'available')
+  end
+
+  def total_rent_cost
+    return 0 unless rented_at
+
+    #TODO: Check how to use this min function
+    elapsed_time = min(Time.current, rented_at + 15.mins) - rented_at
+    (elapsed_time / 1.minute).ceil * RENT_COST
   end
 end
