@@ -8,6 +8,7 @@ class Card < ApplicationRecord
   RESTOCK_COST = 50.freeze # in cents
 
   COMPLETE_DECK_SIZE = 53.freeze # 52 standard cards + 1 joker
+  MAX_RENT_TIME = 15.minutes.freeze # Maximum time a card can be rented before it is considered overdue
 
   validates :suit, inclusion: { in: SUITS }, unless: :joker?
   validates :value, inclusion: { in: VALUES }, unless: :joker?
@@ -79,8 +80,16 @@ class Card < ApplicationRecord
   def restock_cards
     return unless lost.present?
 
+    lost.each do |lost_card|
+      lost_card.make_it_available!
+      Transaction.create_replacement_transaction!(lost_card, RESTOCK_COST)
+    end
+  end
+
+  def make_it_available!
+    raise 'The card trying to be made available is not lost.' unless lost?
+    
     update!(status: 'available', rented_at: nil)
-    Transaction.create_replacement_transaction!(self, RESTOCK_COST)
   end
 
   private
@@ -94,14 +103,17 @@ class Card < ApplicationRecord
   end
 
   def self.add_joker
-    create(suit: nil, value: 'joker', status: 'available')
+    create!(suit: nil, value: 'joker', status: 'available')
   end
 
   def total_rent_cost
+    (elapsed_time / 1.minute).ceil * RENT_COST
+  end
+
+  def elapsed_time
     return 0 unless rented_at
 
-    elapsed_time = [Time.current, rented_at + 15.mins].min - rented_at
-    (elapsed_time / 1.minute).ceil * RENT_COST
+    [Time.current, rented_at + MAX_RENT_TIME].min - rented_at
   end
 
   def overdue?
