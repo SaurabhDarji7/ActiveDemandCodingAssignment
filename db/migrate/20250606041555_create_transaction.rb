@@ -5,7 +5,7 @@ class CreateTransaction < ActiveRecord::Migration[8.0]
       t.integer :amount_cents, null: false
       t.timestamps
 
-        t.references :card, foreign_key: true, null: false
+      t.references :card, foreign_key: true, null: false
     end
   end
 end
