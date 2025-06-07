@@ -2,37 +2,35 @@ class Transaction < ApplicationRecord
   enum :transaction_type, { initial_balance: 0, rent: 1, card_replacement: 2 }
 
   validates :transaction_type, presence: true
-  validates :amount_cents, numericality: { greater_than_or_equal_to: 0 } #Can be nefative for expenses?
+  validates :amount, numericality: { greater_than_or_equal_to: 0 }
 
-  after_create :exit_application, unless: -> { total_balance > 0 }
+  after_create :exit_application, unless: -> { self.class.total_balance > 0 }
 
   belongs_to :card
 
-  INITIAL_BALANCE = 500.freeze # in cents
+  INITIAL_BALANCE = 500 # in cents
 
   def initialize(attributes = {})
     super
     load_initial_balance if Transaction.count.zero?
   end
 
-  # TODO: Maybe create a function for total amount which would be - rent - replacement costs?
-  #  or it could be just the amounts being + or -
-
 
   def amount_in_dollars
-    amount_cents / 100.0
+    amount / 100.0
   end
 
   def self.total_balance
-    Transaction.sum(:amount_cents) / 100.0
+    initial_balance = Transaction.initial_balance.sum(:amount) / 100.0
+    initial_balance - pending_rent - pending_replacement
   end
 
   def self.pending_rent
-    Transaction.rent.sum(:amount_cents) / 100.0
+    Transaction.rent.sum(:amount) / 100.0
   end
 
   def self.pending_replacement
-    Transaction.card_replacement.sum(:amount_cents) / 100.0
+    Transaction.card_replacement.sum(:amount) / 100.0
   end
 
   def self.recent_transactions(time_frame_hrs: 3)
@@ -40,14 +38,13 @@ class Transaction < ApplicationRecord
   end
 
   def self.collect_rent!(card, amount)
-    transaction = Transaction.new(transaction_type: :rent, amount_cents: amount, card: card)
+    transaction = Transaction.new(transaction_type: :rent, amount: amount, card: card)
     transaction.save!
     transaction
   end
 
-  # Should we make it negeative? the amount?
   def self.charge_replacement_fees!(card, amount)
-    transaction = Transaction.new(transaction_type: :card_replacement, amount_cents: amount, card: card) # Assuming a fixed cost for lost card
+    transaction = Transaction.new(transaction_type: :card_replacement, amount: amount, card: card)
     transaction.save!
     transaction
   end
@@ -56,7 +53,7 @@ class Transaction < ApplicationRecord
 
   def load_initial_balance
     self.transaction_type = :initial_balance
-    self.amount_cents = INITIAL_BALANCE
+    self.amount = INITIAL_BALANCE
     save!
   end
 

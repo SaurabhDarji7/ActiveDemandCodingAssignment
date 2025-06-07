@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_06_041555) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_07_000545) do
   create_table "cards", force: :cascade do |t|
     t.string "suit"
     t.string "value"
@@ -24,7 +24,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_06_041555) do
 
   create_table "transactions", force: :cascade do |t|
     t.integer "transaction_type", default: 0, null: false
-    t.integer "amount_cents", null: false
+    t.decimal "amount", precision: 10, scale: 2
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "card_id", null: false

@@ -106,7 +106,7 @@ class Card < ApplicationRecord
   def self.add_standard_cards
     SUITS.each do |suit|
       VALUES.each do |value|
-        create(suit: suit, value: value, status: 'available')
+        create!(suit: suit, value: value, status: 'available')
       end
     end
   end
