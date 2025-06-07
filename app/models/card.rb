@@ -48,17 +48,6 @@ class Card < ApplicationRecord
     update!(status: 'rented', rented_at: Time.current)
   end
 
-  def return!
-    raise 'The card trying to be returned is not rented (violating the uniqueness constraint on a standard deck of cards).' unless rented?
-    if lost?
-      lost!
-      raise 'The card trying to be returned has already been declared as \'lost\'.' 
-    end
-
-    update!(status: 'available')
-    Transaction.collect_rent!(self, total_rent_cost)
-  end
-
   def lost!
     return if lost?
     # ban the user from renting this card again
@@ -67,9 +56,8 @@ class Card < ApplicationRecord
     Transaction.charge_replacement_fees!(self, RESTOCK_COST)
   end
 
-  # Overriding the lost? method of the enum to include the overdue condition
-  def lost?
-    super || overdue?
+  def lost_or_overdue?
+    lost? || overdue?
   end
 
   def joker?
@@ -90,7 +78,7 @@ class Card < ApplicationRecord
   end
 
   def make_it_available!
-    raise 'The card trying to be made available is not lost.' unless lost?
+    raise 'The card trying to be made available is not lost.' unless lost_or_overdue?
     
     update!(status: 'available', rented_at: nil)
   end
