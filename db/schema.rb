@@ -10,7 +10,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_07_000545) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_07_051012) do
+  create_table "blacklisted_clients", force: :cascade do |t|
+    t.string "ip_address", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["ip_address"], name: "index_blacklisted_clients_on_ip_address", unique: true
+  end
+
   create_table "cards", force: :cascade do |t|
     t.string "suit"
     t.string "value"
