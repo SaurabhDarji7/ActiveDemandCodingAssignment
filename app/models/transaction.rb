@@ -8,29 +8,18 @@ class Transaction < ApplicationRecord
 
   belongs_to :card
 
-  INITIAL_BALANCE = 500 # in cents
-
-  def initialize(attributes = {})
-    super
-    load_initial_balance if Transaction.count.zero?
-  end
-
-
-  def amount_in_dollars
-    amount / 100.0
-  end
+  INITIAL_BALANCE = 5 # in dollars
 
   def self.total_balance
-    initial_balance = Transaction.initial_balance.sum(:amount) / 100.0
-    initial_balance - pending_rent - pending_replacement
+    INITIAL_BALANCE - pending_rent - pending_replacement
   end
 
   def self.pending_rent
-    Transaction.rent.sum(:amount) / 100.0
+    Transaction.rent.sum(:amount)
   end
 
   def self.pending_replacement
-    Transaction.card_replacement.sum(:amount) / 100.0
+    Transaction.card_replacement.sum(:amount)
   end
 
   def self.recent_transactions(time_frame_hrs: 3)
@@ -50,12 +39,6 @@ class Transaction < ApplicationRecord
   end
 
   private
-
-  def load_initial_balance
-    self.transaction_type = :initial_balance
-    self.amount = INITIAL_BALANCE
-    save!
-  end
 
   def exit_application
     Rails.logger.info "Exiting application due to insufficient balance."
