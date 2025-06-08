@@ -11,7 +11,7 @@ class Card < ApplicationRecord
   MAX_RENT_TIME = 1.seconds # Maximum time a card can be rented before it is considered overdue
 
   validates :suit, inclusion: { in: SUITS }, unless: :joker?
-  validates :value, inclusion: { in: VALUES }, unless: :joker?
+  validates :value, inclusion: { in: VALUES + ['joker']}
 
   validates :suit, presence: true, unless: :joker?
   validates :value, presence: true
@@ -64,11 +64,11 @@ class Card < ApplicationRecord
   end
   
   def overdue?
-    rented? && ((Time.current - rented_at) > MAX_RENT_TIME)
+    rented? && (elapsed_time > MAX_RENT_TIME)
   end
 
   def total_rent_cost
-    (elapsed_time / 1.minute).ceil * RENT_COST
+    ([elapsed_time, MAX_RENT_TIME].min / 1.minute).ceil * RENT_COST
   end
 
   private
@@ -76,6 +76,6 @@ class Card < ApplicationRecord
   def elapsed_time
     raise 'Card not rented, for it to have an elapsed time' unless rented?
 
-    [Time.current, rented_at + MAX_RENT_TIME].min - rented_at
+    Time.current - rented_at
   end
 end
