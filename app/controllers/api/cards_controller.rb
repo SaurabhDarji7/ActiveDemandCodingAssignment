@@ -17,7 +17,7 @@ module Api
       card = Card.find_by(suit: params[:suit], value: params[:value])
       return render json: { error: 'invalid card' }, status: :not_found unless card.present? # Could also be a bad request error?
   
-      ReturnCardService.new(card, request.remote_ip).call
+      ReturnCardService.new(card).call
       render json: { success: 'Card returned!' }, status: :ok
     rescue StandardError => e
       render json: { error: e.message }, status: :unprocessable_entity
@@ -30,7 +30,7 @@ module Api
     end
 
     def initialize_balance
-      Transaction.new if Transaction.count.zero?
+      Transaction.setup_transaction
     end
 
     def card_params

@@ -3,7 +3,7 @@ class RestockCardsJob
 
   def perform(*args)
     Rails.logger.info "[RestockCardsJob]----------------------- Starting the Restocking of Cards -----------------------"
-    Card.restock_cards
+    RestockCardsService.new.call
     Rails.logger.info "[RestockCardsJob]----------------------- Restocking Completed-----------------------"
   end
 end

@@ -20,25 +20,15 @@ class Card < ApplicationRecord
   
   enum :status, { available: 0, rented: 1, lost: 2 }
 
+  scope :overdue, -> { where(status: :rented).where("rented_at < ?", MAX_RENT_TIME.ago) }
+
   has_many :transactions, dependent: :destroy
-
-  # Initialize the deck with all cards
-  def self.setup_deck
-    # Housekeeping to avoid duplicates between sessions:
-    # Card.destroy_all ensures that all existing cards are removed from the database,
-    # allowing the setup of a new deck without any duplication or leftover data.
-    Card.destroy_all
-
-    add_standard_cards
-    add_joker
-  end
 
   def self.handout_random_card
     raise 'No available cards' if Card.available.empty?
     
     random_card = Card.available.sample
     random_card.rent!
-
     random_card
   end
 
@@ -49,71 +39,43 @@ class Card < ApplicationRecord
   end
 
   def lost!
-    return if lost?
-    # ban the user from renting this card again
+    raise 'The card trying to return is already marked lost' if lost?
+
     update!(status: 'lost')
-
-    Transaction.charge_replacement_fees!(self, RESTOCK_COST)
   end
 
-  def lost_or_overdue?
-    lost? || overdue?
-  end
+  def make_it_available!
+    raise 'The card trying to be made available is already available!.' if available?
 
-  def joker?
-    value == 'joker'
+    update!(status: 'available', rented_at: nil)
   end
 
   def self.complete_deck?
     count == COMPLETE_DECK_SIZE
   end
 
-  def self.restock_cards
-    return unless lost.present?
-
-    lost.each do |lost_card|
-      lost_card.make_it_available!
-      Transaction.charge_replacement_fees!(lost_card, RESTOCK_COST)
-    end
+  def joker?
+    value == 'joker'
   end
 
-  def make_it_available!
-    raise 'The card trying to be made available is not lost.' unless lost_or_overdue?
-    
-    update!(status: 'available', rented_at: nil)
+  def lost_or_overdue?
+    lost? || overdue?
   end
-
-  def self.find_and_mark_lost_cards
-    self.rented.each do |card|
-        card.lost! if card.overdue? # would we want this to be depended on the value == 'lost' only
-    end
-  end
-
-  private
-
-  def self.add_standard_cards
-    SUITS.each do |suit|
-      VALUES.each do |value|
-        create!(suit: suit, value: value, status: 'available')
-      end
-    end
-  end
-
-  def self.add_joker
-    create!(suit: nil, value: 'joker', status: 'available')
+  
+  def overdue?
+    rented? && ((Time.current - rented_at) > 15.minutes)
   end
 
   def total_rent_cost
     (elapsed_time / 1.minute).ceil * RENT_COST
   end
 
+  private
+
   def elapsed_time
-    return 0 unless rented?
+    raise 'Card not rented, for it to have an elapsed time' unless rented?
 
     [Time.current, rented_at + MAX_RENT_TIME].min - rented_at
   end
-
-  def overdue?
-    rented? && ((Time.current - rented_at) > 15.minutes)
-  end
 end
+
