@@ -1,8 +1,6 @@
 module Api
   class AdminController < ::ApplicationController
     
-    protect_from_forgery with: :null_session
-
     def stock
       Card.all # Assuming you want to return all cards in stock
       

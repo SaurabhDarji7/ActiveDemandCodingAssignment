@@ -1,11 +1,14 @@
-class ApplicationController < ActionController::Base
-  # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
-  allow_browser versions: :modern
-
+# Using this as it is lightweight!!!
+class ApplicationController < ActionController::API
+  before_action :set_current_client
+  before_action :block_request, if: :unsafe_client?
   before_action :handle_overdue_cards
-  before_action :block_request, if: :unsafe_ip_address? 
 
   private
+
+  def set_current_client
+    @current_client = Client.find_or_create_by!(ip_address: request.remote_ip)
+  end
 
   def handle_overdue_cards
     HandleOverdueCardsService.new.call
@@ -15,7 +18,7 @@ class ApplicationController < ActionController::Base
     render json: { error: 'Access denied' }, status: :forbidden
   end
 
-  def unsafe_ip_address?
-    Client.find_or_create_by(ip_address: request.remote_ip).banned?
+  def unsafe_client?
+    @current_client.banned?
   end
 end

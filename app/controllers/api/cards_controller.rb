@@ -1,11 +1,11 @@
 module Api
   class CardsController < ::ApplicationController
 
-    protect_from_forgery with: :null_session # Move this to ApplicationController 
+    # protect_from_forgery with: :null_session # Move this to ApplicationController 
 
 
     def show
-      card = Card.handout_random_card
+      card = Card.handout_random_card_to(@current_client)
 
       render json: card, status: :ok
     rescue StandardError => e

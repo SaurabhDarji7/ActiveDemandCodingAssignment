@@ -17,12 +17,13 @@ class HandleOverdueCardsService
 
   def handle_overdue_card(card)
     ActiveRecord::Base.transaction do 
-      ban_client!
+      ban_client!(card)
+      Rails.logger.info("Banned client #{card.client.id} for overdue card #{card.suit} #{card.value}") 
       card.lost!
     end
   end
 
   def ban_client!(card)
-      card.client.ban!
+      card.client&.ban!
   end
 end

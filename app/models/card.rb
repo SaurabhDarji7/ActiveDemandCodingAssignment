@@ -25,18 +25,18 @@ class Card < ApplicationRecord
   has_many :transactions, dependent: :destroy
   belongs_to :client, optional: true
 
-  def self.handout_random_card
+  def self.handout_random_card_to(current_client)
     raise 'No available cards' if Card.available.empty?
     
     random_card = Card.available.sample
-    random_card.rent!
+    random_card.rent_to!(current_client)
     random_card
   end
 
-  def rent!
+  def rent_to!(current_client)
     raise 'The card trying to be rentend is not available' unless available?
 
-    update!(status: 'rented', rented_at: Time.current)
+    update!(status: 'rented', rented_at: Time.current, client_id: current_client.id)
   end
 
   def lost!

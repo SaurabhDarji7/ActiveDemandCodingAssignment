@@ -5,6 +5,7 @@ class ReturnCardService
 
   def call
     raise 'A lost card cannot be returned!' if @card.lost?
+    raise 'A card that is not currently rented cannot be returned!' unless @card.rented?
 
     ActiveRecord::Base.transaction do
       Transaction.collect_rent!(@card, @card.total_rent_cost)
