@@ -10,7 +10,7 @@ class ApplicationStateBuilder
   private
 
   def cleanup_data
-    Card.destroy_all!
-    Transaction.destroy_all!
+    Card.destroy_all
+    Transaction.destroy_all
   end
 end

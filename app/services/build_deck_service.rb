@@ -16,7 +16,7 @@ class BuildDeckService
     add_joker_card
   end
   
-  def self.add_standard_cards
+  def add_standard_cards
     Card::SUITS.each do |suit|
       Card::VALUES.each do |value|
         Card.create!(suit: suit, value: value, status: 'available')
@@ -24,7 +24,7 @@ class BuildDeckService
     end
   end
 
-  def self.add_joker_card
+  def add_joker_card
     Card.create!(suit: nil, value: 'joker', status: 'available')
   end
 end
