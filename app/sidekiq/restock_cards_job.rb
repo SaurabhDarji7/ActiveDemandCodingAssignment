@@ -1,3 +1,5 @@
+require 'sidekiq-scheduler'
+
 class RestockCardsJob
   include Sidekiq::Job
 

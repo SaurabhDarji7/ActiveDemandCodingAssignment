@@ -1,0 +1,6 @@
+# config/sidekiq.yml
+:scheduler:
+  :schedule:
+    restock_cards_job: # runs every hour
+      class: RestockCardsJob
+      every: 1h

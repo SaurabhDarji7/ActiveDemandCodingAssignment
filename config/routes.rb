@@ -1,4 +1,5 @@
 require "sidekiq/web" # require the web UI
+require 'sidekiq-scheduler/web'
 
 Rails.application.routes.draw do
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
@@ -15,6 +16,7 @@ Rails.application.routes.draw do
   end
 
   mount Sidekiq::Web => "/sidekiq" # access it at http://localhost:3000/sidekiq
+  
 
   # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
