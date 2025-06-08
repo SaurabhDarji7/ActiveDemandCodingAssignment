@@ -4,7 +4,7 @@ class Transaction < ApplicationRecord
   validates :transaction_type, presence: true
   validates :amount, numericality: { greater_than_or_equal_to: 0 }
 
-  after_create :exit_application, unless: -> { self.class.total_balance > 0 }
+  after_create :exit_application, if: -> { self.class.total_balance < 0 }
 
   belongs_to :card
 
@@ -15,11 +15,11 @@ class Transaction < ApplicationRecord
   end
 
   def self.pending_rent
-    Transaction.rent.sum(:amount)
+    Transaction.rent.pluck(:amount).map(&:to_d).sum
   end
 
   def self.pending_replacement
-    Transaction.card_replacement.sum(:amount)
+    Transaction.card_replacement.pluck(:amount).map(&:to_d).sum
   end
 
   def self.recent_transactions(time_frame_hrs: 3)
@@ -27,17 +27,13 @@ class Transaction < ApplicationRecord
   end
 
   def self.collect_rent!(card, amount)
-    transaction = Transaction.new(transaction_type: :rent, amount: amount, card: card)
-    transaction.save!
-    transaction
+    create!(transaction_type: :rent, amount: amount, card: card)
   end
 
   def self.charge_replacement_fees!(card, amount)
-    transaction = Transaction.new(transaction_type: :card_replacement, amount: amount, card: card)
-    transaction.save!
-    transaction
+    create!(transaction_type: :card_replacement, amount: amount, card: card)
   end
-
+  
   private
 
   def exit_application
