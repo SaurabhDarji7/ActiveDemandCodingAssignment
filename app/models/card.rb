@@ -8,7 +8,7 @@ class Card < ApplicationRecord
   RESTOCK_COST = 0.5 # in cents
 
   COMPLETE_DECK_SIZE = 53 # 52 standard cards + 1 joker
-  MAX_RENT_TIME = 1.seconds # Maximum time a card can be rented before it is considered overdue
+  MAX_RENT_TIME = 15.minutes # Maximum time a card can be rented before it is considered overdue
 
   validates :suit, inclusion: { in: SUITS }, unless: :joker?
   validates :value, inclusion: { in: VALUES + ['joker']}
