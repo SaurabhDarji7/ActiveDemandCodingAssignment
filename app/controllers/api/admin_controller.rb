@@ -24,7 +24,7 @@ module Api
 
       recent_transactions = Transaction.recent_transactions(time_frame_hrs: 3).map do |transaction|
         {
-          type: transaction.type,
+          type: transaction.transaction_type,
           amount: transaction.amount,
           created_at: transaction.created_at
         }
