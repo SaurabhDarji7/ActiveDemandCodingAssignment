@@ -1,6 +1,5 @@
 class HandleOverdueCardsService
-  def initialize(ip_address)
-    @ip_address ||= ip_address
+  def initialize
   end
 
   def call
@@ -23,7 +22,7 @@ class HandleOverdueCardsService
     end
   end
 
-  def ban_client!
-    BlacklistedClient.create!(ip_address: @ip_address)
+  def ban_client!(card)
+      card.client.ban!
   end
 end

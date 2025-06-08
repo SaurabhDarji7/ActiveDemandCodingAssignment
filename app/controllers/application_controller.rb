@@ -8,7 +8,7 @@ class ApplicationController < ActionController::Base
   private
 
   def handle_overdue_cards
-    HandleOverdueCardsService.new(request.remote_ip).call
+    HandleOverdueCardsService.new.call
   end
 
   def block_request
@@ -16,6 +16,6 @@ class ApplicationController < ActionController::Base
   end
 
   def unsafe_ip_address?
-    BlacklistedClient.find_by(ip_address: request.remote_ip).present?
+    Client.find_or_create_by(ip_address: request.remote_ip).banned?
   end
 end

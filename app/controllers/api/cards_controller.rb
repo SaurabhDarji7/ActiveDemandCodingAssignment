@@ -1,6 +1,5 @@
 module Api
   class CardsController < ::ApplicationController
-    before_action :initialize_deck, :initialize_balance, only: [:show]
 
     protect_from_forgery with: :null_session # Move this to ApplicationController 
 
@@ -25,13 +24,6 @@ module Api
 
     private
 
-    def initialize_deck
-      Card.setup_deck unless Card.complete_deck?
-    end
-
-    def initialize_balance
-      Transaction.setup_transaction
-    end
 
     def card_params
       params.expect(card: [:suit, :value])

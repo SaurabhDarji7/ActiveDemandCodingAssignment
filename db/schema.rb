@@ -10,14 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_07_051012) do
-  create_table "blacklisted_clients", force: :cascade do |t|
-    t.string "ip_address", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["ip_address"], name: "index_blacklisted_clients_on_ip_address", unique: true
-  end
-
+ActiveRecord::Schema[8.0].define(version: 2025_06_08_153624) do
   create_table "cards", force: :cascade do |t|
     t.string "suit"
     t.string "value"
@@ -25,8 +18,18 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_07_051012) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "rented_at"
+    t.integer "client_id"
+    t.index ["client_id"], name: "index_cards_on_client_id"
     t.index ["rented_at"], name: "index_cards_on_rented_at"
     t.index ["suit", "value"], name: "index_cards_on_suit_and_value", unique: true
+  end
+
+  create_table "clients", force: :cascade do |t|
+    t.string "ip_address", null: false
+    t.integer "status", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["ip_address"], name: "index_clients_on_ip_address", unique: true
   end
 
   create_table "transactions", force: :cascade do |t|
@@ -38,5 +41,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_07_051012) do
     t.index ["card_id"], name: "index_transactions_on_card_id"
   end
 
+  add_foreign_key "cards", "clients"
   add_foreign_key "transactions", "cards"
 end

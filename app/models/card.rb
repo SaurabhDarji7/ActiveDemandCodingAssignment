@@ -8,7 +8,7 @@ class Card < ApplicationRecord
   RESTOCK_COST = 0.5 # in cents
 
   COMPLETE_DECK_SIZE = 53 # 52 standard cards + 1 joker
-  MAX_RENT_TIME = 15.minutes # Maximum time a card can be rented before it is considered overdue
+  MAX_RENT_TIME = 1.seconds # Maximum time a card can be rented before it is considered overdue
 
   validates :suit, inclusion: { in: SUITS }, unless: :joker?
   validates :value, inclusion: { in: VALUES }, unless: :joker?
@@ -23,6 +23,7 @@ class Card < ApplicationRecord
   scope :overdue, -> { where(status: :rented).where("rented_at < ?", MAX_RENT_TIME.ago) }
 
   has_many :transactions, dependent: :destroy
+  belongs_to :client, optional: true
 
   def self.handout_random_card
     raise 'No available cards' if Card.available.empty?
@@ -47,7 +48,7 @@ class Card < ApplicationRecord
   def make_it_available!
     raise 'The card trying to be made available is already available!.' if available?
 
-    update!(status: 'available', rented_at: nil)
+    update!(status: 'available', rented_at: nil, client_id: nil)
   end
 
   def self.complete_deck?
@@ -78,4 +79,3 @@ class Card < ApplicationRecord
     [Time.current, rented_at + MAX_RENT_TIME].min - rented_at
   end
 end
-
