@@ -9,12 +9,11 @@ class HandleOverdueCardsService
     Card.overdue.find_each do |card|
       handle_overdue_card(card)
     end
-    rescue => e
-      Rails.logger.error("Failed to handle overdue card: #{e.message}")
-      raise
-    end
+  rescue => e
+    Rails.logger.error("Failed to handle overdue card: #{e.message}")
+    raise
   end
-
+  
   private
 
   def handle_overdue_card(card)

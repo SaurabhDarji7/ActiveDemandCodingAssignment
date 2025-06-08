@@ -4,9 +4,11 @@ class ReturnCardService
   end
 
   def call
+    raise 'A lost card cannot be returned!' if @card.lost?
+
     ActiveRecord::Base.transaction do
-      @card.make_it_available!
       Transaction.collect_rent!(@card, @card.total_rent_cost)
+      @card.make_it_available!
     end
   rescue => e
     Rails.logger.error("Failed to return card: #{e.message}")

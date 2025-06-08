@@ -4,8 +4,8 @@ class Card < ApplicationRecord
   SUITS = %w[spade heart club diamond].freeze
   VALUES = %w[2 3 4 5 6 7 8 9 10 11 12 13 a].freeze
 
-  RENT_COST = 1 # in cents
-  RESTOCK_COST = 50 # in cents
+  RENT_COST = 0.01 # in cents
+  RESTOCK_COST = 0.5 # in cents
 
   COMPLETE_DECK_SIZE = 53 # 52 standard cards + 1 joker
   MAX_RENT_TIME = 15.minutes # Maximum time a card can be rented before it is considered overdue
@@ -63,7 +63,7 @@ class Card < ApplicationRecord
   end
   
   def overdue?
-    rented? && ((Time.current - rented_at) > 15.minutes)
+    rented? && ((Time.current - rented_at) > MAX_RENT_TIME)
   end
 
   def total_rent_cost
