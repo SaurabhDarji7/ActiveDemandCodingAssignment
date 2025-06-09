@@ -64,5 +64,5 @@ end
 
 gem "sidekiq", "~> 8.0"
 gem "sidekiq-scheduler"
-gem 'rspec-rails', '~> 6.1.4'
+gem 'rspec-rails', '~> 8.0.0'
 
