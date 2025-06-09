@@ -71,6 +71,14 @@ class Card < ApplicationRecord
     ([elapsed_time, MAX_RENT_TIME].min / 1.minute).ceil * RENT_COST
   end
 
+  def as_json
+    {
+      suit: suit,
+      value: value
+    }
+  end
+
+
   private
 
   def elapsed_time

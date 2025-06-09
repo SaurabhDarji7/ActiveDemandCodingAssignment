@@ -21,10 +21,8 @@ module Api
 
     private
 
-
     def card_params
       params.expect(card: [:suit, :value])
     end
-
   end
 end
